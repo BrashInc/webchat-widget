@@ -1,0 +1,22 @@
+@import "../../head.scss";
+
+#webchat .webchat-header {
+    width: 100%;
+    background-color: var(--color);
+    padding: 10px 10px 10px 20px;
+    color: var(--headerTextColor);
+    display: flex;
+    align-items: center;
+    .webchat-header-icon {
+        height: 30px;
+        width: 30px;
+        border-radius: 50%;
+    }
+    .webchat-header-title {
+        font-weight: 600;
+        font-size: 1.1em;
+    }
+    .webchat-header-close-button {
+        margin-left: auto;
+    }
+};

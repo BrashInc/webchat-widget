@@ -1,0 +1,18 @@
+@import "../../head.scss";
+
+#webchat .webchat-input {
+    width: 100%;
+    display: flex;
+    box-shadow: $shadow 0px -2px 15px;
+    textarea {
+        width: 100%;
+        line-height: 1.5;
+        height: calc(1.5em * 2 + 20px);
+        padding: 10px;
+    }
+    button {
+        padding: 10px;
+        font-weight: 600;
+        align-self: center;
+    }
+}

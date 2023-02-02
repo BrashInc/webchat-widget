@@ -1,0 +1,24 @@
+@import "../../head.scss";
+
+#webchat .webchat-icon {
+    background-color: var(--color);
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    position: fixed;
+    bottom: 50px;
+    right: 50px; 
+    transition: opacity 0.2s ease-in;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    @include mobile {
+        bottom: 20px;
+        right: 20px; 
+    }
+    &.hidden {
+        opacity: 0;
+        z-index: -1;
+        pointer-events: none
+    }
+  };

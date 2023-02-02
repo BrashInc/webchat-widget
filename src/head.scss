@@ -1,0 +1,12 @@
+$white: white;
+$grey: #999999;
+$shadow: rgba(149, 157, 165, 0.2);
+
+$tablet-width: 768px;
+$desktop-width: 1024px;
+
+@mixin mobile {
+  @media (max-width: #{$desktop-width - 1px}) {
+    @content;
+  }
+}
