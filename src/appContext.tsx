@@ -14,6 +14,7 @@ interface AppContextProps {
     isEnlarged: boolean,
     isLoading: boolean,
     hasCapacity: boolean,
+    errorMessage: string | null,
     messages: Message[],
     config: AppConfig,
     toggleChatbox: () => void;
@@ -25,6 +26,7 @@ const AppContext = React.createContext<AppContextProps>({
     isEnlarged: false,
     isLoading: false,
     hasCapacity: true,
+    errorMessage: null,
     messages: [],
     config: DefaultConfig,
     toggleChatbox() {},
@@ -44,6 +46,7 @@ export function AppContextProvider(props: {
     const [isLoading, setIsLoading] = useState(false);
     const [config, setConfig] = useState<AppConfig>(DefaultConfig);
     const [hasCapacity, setHasCapacity] = useState(true);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null)
     const [messages, setMessages] = useState<Message[]>([]);
     const messagesRef = useRef(messages);
 
@@ -117,15 +120,19 @@ export function AppContextProvider(props: {
                 history,
             })
             setIsLoading(false);
-            if (chatResponse) {
-                if (chatResponse.message) {
-                    updateMessage(id, { status: "sent", timestamp: new Date().getTime() });
-                    addMessage({ text: chatResponse.message, isUser: false });  
+            if (chatResponse.isSuccess) {
+                updateMessage(id, { status: "sent", timestamp: new Date().getTime() });
+                if (chatResponse.data?.message) {
+                    addMessage({ text: chatResponse.data.message, isUser: false });  
                 }
-                setHasCapacity(chatResponse.hasCapacity)
+                if (chatResponse.data?.hasCapacity) {
+                    setHasCapacity(chatResponse.data.hasCapacity)
+                }
+                setErrorMessage(null);
             }
             else {
                 updateMessage(id, { status: "error" });
+                setErrorMessage(chatResponse.errorMessage ?? null);
             }
         }
     }, [addMessage]);
@@ -155,6 +162,7 @@ export function AppContextProvider(props: {
                 isEnlarged,
                 isLoading,
                 hasCapacity,
+                errorMessage,
                 messages,
                 config,
                 toggleChatbox,

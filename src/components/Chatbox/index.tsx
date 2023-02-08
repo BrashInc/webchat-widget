@@ -12,7 +12,7 @@ import MessageBubble from "./MessageBubble";
 
 export default function Chatbox() {
 
-    const { isEnlarged, isLoading, hasCapacity, messages } = useAppContext();
+    const { isEnlarged, isLoading, hasCapacity, errorMessage, messages } = useAppContext();
 
     const [status, setStatus] = useState<"visible" | "hidden" | "destroyed">("hidden");
     const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
@@ -69,8 +69,11 @@ export default function Chatbox() {
                         </div>
                     } */}
                 </div>
-                {!hasCapacity &&
-                    <div className="webchat-token-warning">This site doens't have enough tokens</div>
+                {/* {!hasCapacity &&
+                    <div className="webchat-warning">This site doens't have enough tokens</div>
+                } */}
+                {errorMessage &&
+                    <div className="webchat-warning">{errorMessage}</div>
                 }
             </div>
             <InputBox/>

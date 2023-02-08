@@ -47,13 +47,21 @@ export async function getChatResponse({ message, history }: {
                 message: string;
                 hasCapacity: boolean;
             } = response.data;
-            return data;
+            return {
+                isSuccess: true,
+                data,
+            }
         }
 	} 
-    catch (error) {
-		console.log(error);
+    catch (error: any) {
+        return {
+            isSuccess: false,
+            errorMessage: error.response.data.message,
+        }
 	}
-    return undefined;
+    return {
+        isSuccess: false,
+    }
 }
 
 export async function sendEmailReceipt({ history }: {
