@@ -2,6 +2,7 @@
 
 #webchat {
     .webchat-window {
+        z-index: 9999999;
         width: 360px;
         height: 500px;
         display: flex;

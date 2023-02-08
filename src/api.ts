@@ -56,7 +56,7 @@ export async function getChatResponse({ message, history }: {
     catch (error: any) {
         return {
             isSuccess: false,
-            errorMessage: error.response.data.message,
+            errorMessage: error.response?.data?.message,
         }
 	}
     return {
