@@ -26,9 +26,9 @@ export const init = (config: userConfig) => {
   );
 }
 
-// init({
-//   siteId: "TzQwFtKp42nFvkeC8BkP",
-//   color: "red",
-//   // headerTextColor: "red",
-// });
+init({
+  siteId: "TzQwFtKp42nFvkeC8BkP",
+  color: "red",
+  // headerTextColor: "red",
+});
 

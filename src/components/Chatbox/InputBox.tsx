@@ -1,6 +1,5 @@
 import React, { useCallback, useState, KeyboardEvent } from "react";
 
-import "./styles.scss";
 import { useAppContext } from "@/appContext";
 import { IconSend } from "@/icons/iconSend";
 

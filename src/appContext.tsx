@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { AppConfig, Message } from "@/types";
-import { getChatResponse } from "./api";
+import { getChatResponse, sendEmailReceipt } from "./api";
 import { randomId } from "./utils";
 
 const DefaultConfig = {
@@ -13,16 +13,18 @@ const DefaultConfig = {
 interface AppContextProps {
     isEnlarged: boolean,
     isLoading: boolean,
+    hasCapacity: boolean,
     messages: Message[],
     config: AppConfig,
     toggleChatbox: () => void;
     setConfig: (config: AppConfig) => void;
-	sendMessage: (message: string) => void;
+	sendMessage: (message: string, id?: string) => void;
 }
 
 const AppContext = React.createContext<AppContextProps>({
     isEnlarged: false,
     isLoading: false,
+    hasCapacity: true,
     messages: [],
     config: DefaultConfig,
     toggleChatbox() {},
@@ -41,6 +43,7 @@ export function AppContextProvider(props: {
     const [isEnlarged, setIsEnlarged] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [config, setConfig] = useState<AppConfig>(DefaultConfig);
+    const [hasCapacity, setHasCapacity] = useState(true);
     const [messages, setMessages] = useState<Message[]>([]);
     const messagesRef = useRef(messages);
 
@@ -72,22 +75,41 @@ export function AppContextProvider(props: {
         setIsEnlarged(!isEnlarged);
     }, [isEnlarged])
 
-	const addMessage = useCallback((message: Omit<Message, "id" | "timestamp">) => {
+	const addMessage = useCallback((message: Pick<Message, "text" | "isUser" | "status">) => {
+        const id = randomId();
         const newMessage: Message = {
             ...message,
-            id: randomId(),
+            id,
             timestamp: new Date().getTime(),
         }
         setMessages(messagesRef.current.concat([newMessage]));
+        return id;
     }, []);
 
-    const sendMessage = useCallback(async (text: string) => {
+    const updateMessage = (id: string, message: Partial<Message>) => {
+        let messages = messagesRef.current.slice();
+        const index = messages.findIndex(x => x.id === id);
+        if (index !== -1) {
+            messages[index] = {
+                ...messages[index],
+                ...message,
+            };
+        }
+        setMessages(messages);
+    }
+
+    const sendMessage = useCallback(async (text: string, id?: string) => {
         if (text !== "") {
             const history = messagesRef.current.map(message => {
                 return { message: message.text, isUser: message.isUser }
             });
 
-            addMessage({ text, isUser: true });    
+            if (id) { // resend
+                updateMessage(id, { status: "sending" });    
+            }
+            else {
+                id = addMessage({ text, isUser: true, status: "sending" });    
+            }   
 
             setIsLoading(true);
             const chatResponse = await getChatResponse({
@@ -96,21 +118,43 @@ export function AppContextProvider(props: {
             })
             setIsLoading(false);
             if (chatResponse) {
-                addMessage({ text: chatResponse, isUser: false });    
+                if (chatResponse.message) {
+                    updateMessage(id, { status: "sent", timestamp: new Date().getTime() });
+                    addMessage({ text: chatResponse.message, isUser: false });  
+                }
+                setHasCapacity(chatResponse.hasCapacity)
+            }
+            else {
+                updateMessage(id, { status: "error" });
             }
         }
     }, [addMessage]);
 
+    // save messages in session storage
     useEffect(() => {
         messagesRef.current = messages;
         sessionStorage.setItem("messages", JSON.stringify(messages));
     }, [messages])
+
+    // on unload, send email receipt
+    useEffect(() => {
+        const unloadCallback = () => { 
+            const history = messagesRef.current.map(message => {
+                return { message: message.text, isUser: message.isUser }
+            });
+            sendEmailReceipt({ history });
+        };
+      
+        window.addEventListener("beforeunload", unloadCallback);
+        return () => window.removeEventListener("beforeunload", unloadCallback);
+    }, []);
 
 	return (
 		<AppContext.Provider 
             value={{ 
                 isEnlarged,
                 isLoading,
+                hasCapacity,
                 messages,
                 config,
                 toggleChatbox,

@@ -1,7 +1,9 @@
 import axios from "axios";
 
+const BASE_URL = "https://ln9zshn1mb.execute-api.us-east-2.amazonaws.com";
+
 const api = axios.create({
-	baseURL: "https://ln9zshn1mb.execute-api.us-east-2.amazonaws.com",
+	baseURL: BASE_URL,
 });
 
 api.interceptors.request.use(
@@ -41,11 +43,34 @@ export async function getChatResponse({ message, history }: {
             history,
 		});
         if (response.status === 200) {
-            return response.data.message;
+            const data: {
+                message: string;
+                hasCapacity: boolean;
+            } = response.data;
+            return data;
         }
 	} 
     catch (error) {
 		console.log(error);
 	}
     return undefined;
+}
+
+export async function sendEmailReceipt({ history }: {
+    history: {
+        message: string;
+        isUser: boolean;
+    }[];
+}) {
+    const siteId = sessionStorage.getItem("siteId");
+    if (!siteId) return;
+    const headers = {
+        type: 'application/json',
+        Authorization:`Site-ID ${siteId}`,
+    };
+    const body = {
+        history,
+    };
+    const blob = new Blob([JSON.stringify(body)], headers);
+	navigator.sendBeacon(`${BASE_URL}/email`, blob);
 }

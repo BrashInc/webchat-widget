@@ -10,4 +10,5 @@ export interface Message {
     isUser: boolean,
     text: string,
     timestamp: number,
+    status?: "sending" | "sent" | "error",
 }
