@@ -61,13 +61,13 @@ export default function Chatbox() {
                             </React.Fragment>
                         )
                     })}
-                    {/* {isLoading && 
+                    {isLoading && 
                         <div className={"webchat-message"}>
                             <div className="webchat-message-bubble">
                                 <LoadingIndicator size={20}/>
                             </div>
                         </div>
-                    } */}
+                    }
                 </div>
                 {/* {!hasCapacity &&
                     <div className="webchat-warning">This site doens't have enough tokens</div>
